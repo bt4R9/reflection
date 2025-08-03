@@ -34,6 +34,9 @@ export class Vector {
     negate() {
         return new Vector(-this.x, -this.y);
     }
+    clone() {
+        return new Vector(this.x, this.y);
+    }
     rotate(angle: number) {
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);

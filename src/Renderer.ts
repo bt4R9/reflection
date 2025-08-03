@@ -1,5 +1,4 @@
-import { Line } from "./Line";
-import type { Square } from "./Square";
+import type { Entity } from "./Entity";
 import type { World } from "./World";
 
 export class Renderer {
@@ -9,7 +8,7 @@ export class Renderer {
     fps_timestamp: number = -1;
     fps_interval: number;
     world: World;
-    updateFn: () => unknown;
+    tracking = true;
 
     constructor(canvas: HTMLCanvasElement, world: World) {
         this.canvas = canvas;
@@ -26,9 +25,9 @@ export class Renderer {
         canvas.style.width = `${rect.width}px`;
         canvas.style.height = `${rect.height}px`;
 
+
         this.world = world;
         this.fps_interval = 1000 / 60;
-        this.updateFn = () => {};
     }
 
     tick = () => {
@@ -42,15 +41,16 @@ export class Renderer {
         }
 
         this.fps_timestamp = now - (elapsed % this.fps_interval);
-
-        this.updateFn();
-        this.world.trace();
+        this.world.update();
         this.draw();
     }
 
-    start(updateFn?: () => unknown) {
-        this.updateFn = updateFn || this.updateFn;
+    start() {
         this.tick();
+
+        this.world.emitter.on('space', () => {
+            this.tracking = !this.tracking;
+        });
     }
 
     stop() {
@@ -70,10 +70,47 @@ export class Renderer {
 
         context.fillStyle = 'green';
         context.beginPath();
-        context.ellipse(world.ray.origin.x, world.ray.origin.y, 10, 10, Math.PI / 4, 0, 360);
+        context.ellipse(world.player.position.x, world.player.position.y, 10, 10, Math.PI / 4, 0, 360);
         context.fill();
 
-        this.drawTraces(world);
+        if (this.tracking) {
+            this.drawTraces(world);
+        }
+
+        this.drawPlayer(world);
+        this.drawEffects(world);
+    }
+
+    drawEffects(world: World) {
+        const context = this.context;
+
+        for (const effect of world.effects) {
+            context.fillStyle = 'red';
+            context.beginPath();
+            context.ellipse(effect.position.x, effect.position.y, effect.value, effect.value, Math.PI / 4, 0, 360);
+            context.fill();
+        }
+    }
+
+    drawPlayer(world: World) {
+        const context = this.context;
+
+        const bullets = world.player.bullets;
+
+        for (const bullet of bullets) {
+            const factor = 1 - (bullet.bounce / 10);
+
+            const r = parseInt('#ff0000'.slice(1, 3), 16);
+            const g = parseInt('ff0000'.slice(3, 5), 16);
+            const b = parseInt('ff0000'.slice(5, 7), 16);
+            const r2 = Math.round(r * factor);
+            const g2 = Math.round(g * factor);
+            const b2 = Math.round(b * factor);
+            context.fillStyle = `#${r2.toString(16).padStart(2, '0')}${g2.toString(16).padStart(2, '0')}${b2.toString(16).padStart(2, '0')}`;
+            context.beginPath();
+            context.ellipse(bullet.position.x, bullet.position.y, 4, 4, Math.PI / 4, 0, 360);
+            context.fill();
+        }
     }
 
     drawTraces(world: World) {
@@ -104,10 +141,10 @@ export class Renderer {
         }
     }
 
-    drawEntity(entity: Line | Square) {
+    drawEntity(entity: Entity) {
         const context = this.context;
 
-        const points = entity instanceof Line ? [entity.p1, entity.p2] : entity.lines.flatMap(line => [line.p1, line.p2]);
+        const points = entity.lines.flatMap(line => [line.p1, line.p2]);
 
         context.beginPath();
         context.setLineDash([]);

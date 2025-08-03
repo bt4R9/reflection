@@ -1,6 +1,4 @@
-import { Line } from "./Line";
 import { Ray } from "./Ray";
-import { Square } from "./Square";
 import type { Vector } from "./Vector";
 import type { World } from "./World";
 
@@ -22,33 +20,22 @@ export class Casting {
             let minDist = Infinity;
 
             for (let entity of this.world.entities) {
-                if (entity instanceof Line) {
-                    const pt = currentRay.intersect(entity);
+                for (const line of entity.lines) {
+                    const pt = currentRay.intersect(line);
                     if (pt) {
                         const dist = pt.sub(currentRay.origin).length();
                         if (dist < minDist) {
                             minDist = dist;
                             closestPt = pt;
-                            closestLine = entity;
+                            closestLine = line;
                         }
                     }
-                } else if (entity instanceof Square) {
-                    for (const line of entity.lines) {
-                        const pt = currentRay.intersect(line);
-                        if (pt) {
-                            const dist = pt.sub(currentRay.origin).length();
-                            if (dist < minDist) {
-                                minDist = dist;
-                                closestPt = pt;
-                                closestLine = line;
-                            }
-                        }
-                    }
+
                 }
             }
 
             if (!closestPt || !closestLine) break;
-
+            closestPt = closestPt.add(currentRay.direction.scale(0.001)); // Small offset to avoid precision issues
             intersections.push(closestPt);
 
             const lineDir = closestLine.p2.sub(closestLine.p1).normalize();

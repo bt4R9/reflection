@@ -1,29 +1,59 @@
 import { Casting } from "./Casting";
-import type { Line } from "./Line";
+import { Control } from "./Control";
+import type { Effect } from "./Effect";
+import type { Entity } from "./Entity";
+import { Events } from "./events";
+import { Player } from "./Player";
 import { Ray } from "./Ray";
-import type { Square } from "./Square";
 import { Vector } from "./Vector";
 
 export class World {
-    entities: (Line | Square)[] = [];
+    entities: Entity[] = [];
+    effects: Effect[] = [];
     ray: Ray;
     casting: Casting;
     traced: Vector[] = [];
     limit: number;
+    emitter = new Events();
+    player: Player;
+    control: Control;
 
-    constructor() {
+    constructor(canvas: HTMLCanvasElement) {
         this.entities = [];
+        this.effects = [];
+
         this.ray = new Ray(new Vector(400, 300), new Vector(-0.5, -0.9));
         this.casting = new Casting(this);
         this.limit = 5;
+        this.control = new Control(canvas, this.emitter);
+        this.player = new Player(new Vector(400, 300), 2, this);
     }
 
-    add(entity: Line | Square) {
+    add(entity: Entity) {
         this.entities.push(entity);
         return this;
     }
 
+    update() {
+        for (const entity of this.entities) {
+            entity.update();
+        }
+
+        for (let i = 0; i < this.effects.length; i++) {
+            this.effects[i].update();
+
+            if (this.effects[i].value >= this.effects[i].end) {
+                this.effects.splice(i, 1);
+                i--; // Adjust index after removal
+            }
+        }
+
+        this.player.update();
+
+        this.trace();
+    }
+
     trace() {
-        this.traced = this.casting.cast(this.ray, this.limit);
+        this.traced = this.casting.cast(this.player.ray, this.limit);
     }
 }
