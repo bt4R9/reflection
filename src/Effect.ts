@@ -34,17 +34,17 @@ function easeInOutCubic(t: number): number {
     : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-function easeOutInCubic(t: number) {
-  if (t < 0.5) {
-    // easeOutCubic scaled to first half
-    const x = t * 2;
-    return 0.5 * (1 - Math.pow(1 - x, 3));
-  } else {
-    // easeInCubic scaled to second half
-    const x = (t - 0.5) * 2;
-    return 0.5 + 0.5 * (x * x * x);
-  }
-}
+// function easeOutInCubic(t: number) {
+//   if (t < 0.5) {
+//     // easeOutCubic scaled to first half
+//     const x = t * 2;
+//     return 0.5 * (1 - Math.pow(1 - x, 3));
+//   } else {
+//     // easeInCubic scaled to second half
+//     const x = (t - 0.5) * 2;
+//     return 0.5 + 0.5 * (x * x * x);
+//   }
+// }
 
 function interpolateEaseInOut(t: number, start: number, end: number): number {
   const eased = easeInOutCubic(t);

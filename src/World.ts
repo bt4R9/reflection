@@ -2,7 +2,7 @@ import { Casting } from "./Casting";
 import { Control } from "./Control";
 import type { Effect } from "./Effect";
 import type { Entity } from "./Entity";
-import { Events } from "./events";
+import { Events } from "./Events";
 import { Player } from "./Player";
 import { Ray } from "./Ray";
 import { Vector } from "./Vector";

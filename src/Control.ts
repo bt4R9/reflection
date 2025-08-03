@@ -1,4 +1,4 @@
-import type { Events } from "./events";
+import type { Events } from "./Events";
 
 export class Control {
     private canvas: HTMLCanvasElement;
