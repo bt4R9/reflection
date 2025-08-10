@@ -25,6 +25,7 @@ export class Renderer {
         canvas.style.width = `${rect.width}px`;
         canvas.style.height = `${rect.height}px`;
 
+        this.context.imageSmoothingEnabled = false;
 
         this.world = world;
         this.fps_interval = 1000 / 60;
@@ -41,7 +42,7 @@ export class Renderer {
         }
 
         this.fps_timestamp = now - (elapsed % this.fps_interval);
-        this.world.update();
+        this.world.update(elapsed);
         this.draw();
     }
 
@@ -61,23 +62,19 @@ export class Renderer {
         const context = this.context;
         const world = this.world;
 
-        context.fillStyle = '#fff';
+        context.fillStyle = '#000';
         context.fillRect(0, 0, 800, 600);
 
         for (const entity of world.entities) {
             this.drawEntity(entity);
         }
 
-        context.fillStyle = 'green';
-        context.beginPath();
-        context.ellipse(world.player.position.x, world.player.position.y, 10, 10, Math.PI / 4, 0, 360);
-        context.fill();
-
-        if (this.tracking) {
+        if (false && this.tracking) {
             this.drawTraces(world);
         }
 
         this.drawPlayer(world);
+        this.drawProjectiles(world);
         this.drawEffects(world);
     }
 
@@ -85,31 +82,34 @@ export class Renderer {
         const context = this.context;
 
         for (const effect of world.effects) {
-            context.fillStyle = 'red';
-            context.beginPath();
-            context.ellipse(effect.position.x, effect.position.y, effect.value, effect.value, Math.PI / 4, 0, 360);
-            context.fill();
+            effect.sprite.draw(context, effect.position.x, effect.position.y);
         }
     }
 
     drawPlayer(world: World) {
         const context = this.context;
+        const sprite = world.player.character.sprite;
 
-        const bullets = world.player.bullets;
+        if (!sprite) {
+            return;
+        }
 
-        for (const bullet of bullets) {
-            const factor = 1 - (bullet.bounce / 10);
+        if (sprite.loaded) {
+            const position = world.player.character.position;
+            sprite.draw(context, position.x, position.y);
 
-            const r = parseInt('#ff0000'.slice(1, 3), 16);
-            const g = parseInt('ff0000'.slice(3, 5), 16);
-            const b = parseInt('ff0000'.slice(5, 7), 16);
-            const r2 = Math.round(r * factor);
-            const g2 = Math.round(g * factor);
-            const b2 = Math.round(b * factor);
-            context.fillStyle = `#${r2.toString(16).padStart(2, '0')}${g2.toString(16).padStart(2, '0')}${b2.toString(16).padStart(2, '0')}`;
-            context.beginPath();
-            context.ellipse(bullet.position.x, bullet.position.y, 4, 4, Math.PI / 4, 0, 360);
-            context.fill();
+            // context.fillStyle = 'red';
+            // context.beginPath();
+            // context.ellipse(position.x, position.y, 20, 20, Math.PI / 4, 0, 360);
+            // context.fill();
+        }
+    }
+
+    drawProjectiles(world: World) {
+        const context = this.context;
+
+        for (const projectile of world.projectiles) {
+            projectile.sprite.draw(context, projectile.position.x, projectile.position.y);
         }
     }
 
@@ -148,7 +148,7 @@ export class Renderer {
 
         context.beginPath();
         context.setLineDash([]);
-        context.strokeStyle = 'black'
+        context.strokeStyle = '#fff'
         context.lineWidth = 1;
 
         context.moveTo(points[0].x, points[0].y);

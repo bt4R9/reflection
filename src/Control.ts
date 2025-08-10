@@ -35,7 +35,7 @@ export class Control {
         this.emitter.emit('mousedown');
     }
 
-    subscribe() {
+    init() {
         window.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('keyup', this.onKeyUp);
         window.addEventListener('mousedown', this.onMouseDown);
@@ -43,7 +43,7 @@ export class Control {
         this.canvas.addEventListener('mousemove', this.onMouseMove);
     }
 
-    unsubscribe() {
+    dispose() {
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
         window.addEventListener('mousedown', this.onMouseDown);

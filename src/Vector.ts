@@ -6,6 +6,9 @@ export class Vector {
         this.x = x;
         this.y = y;
     }
+    equal(v: Vector) {
+        return this.x === v.x && this.y === v.y;
+    }
     add(v: Vector) {
         return new Vector(this.x + v.x, this.y + v.y);
     }

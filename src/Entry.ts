@@ -11,14 +11,14 @@ export class Entry {
     }
 
     start() {
-        this.world.control.subscribe();
-        this.world.player.subscribe();
+        this.world.control.init();
+        this.world.player.init();
         this.renderer.start();
     }
 
     stop() {
-        this.world.control.unsubscribe();
-        this.world.player.unsubscribe();
+        this.world.control.dispose();
+        this.world.player.dispose();
         this.renderer.stop();
     }
 }

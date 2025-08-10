@@ -9,7 +9,7 @@ export class Casting {
         this.world = world;
     }
 
-    cast(ray: Ray, depth: number = 10) {
+    cast(ray: Ray, depth: number = 4) {
         let currentRay = ray;
 
         const intersections: Vector[] = [ray.origin];

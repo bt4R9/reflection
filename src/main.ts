@@ -56,13 +56,4 @@ const polygon = Entity.polygon([
 
 world.add(polygon);
 
-document.getElementById('limit')?.addEventListener('input', (e) => {
-  const input = e.target as HTMLInputElement;
-  const value = parseInt(input.value, 10);
-
-  if (!isNaN(value)) {
-    world.limit = value;
-  }
-});
-
 game.start();

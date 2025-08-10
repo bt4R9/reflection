@@ -73,7 +73,7 @@ export class Entity {
             line.p1 = line.p1.sub(center).rotate(angle).add(center);
             line.p2 = line.p2.sub(center).rotate(angle).add(center);
         }
-
+        
         return this;
     }
 
@@ -96,7 +96,7 @@ export class Entity {
         const first = sides[0];
         const last = sides[sides.length - 1];
 
-        for (let i = 1; i < sides.length - 1; i++) {
+        for (let i = 1; i < sides.length; i++) {
             lines.push(new Line(sides[i - 1], sides[i]));
         }
 

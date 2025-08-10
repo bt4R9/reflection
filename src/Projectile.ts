@@ -1,39 +1,49 @@
 import { Effect } from "./Effect";
 import { Ray } from "./Ray";
+import { Sprite } from "./Sprite";
 import type { Vector } from "./Vector";
 import type { World } from "./World";
 
-export class Bullet {
+export class Projectile {
     position: Vector;
     direction: Vector;
+    world: World;
     speed: number = 2.5;
     active: boolean = true;
 
-    world: World;
+    sprite: Sprite;
 
     bounce: number = 0;
-    private maxBounces: number = 5;
+    private maxBounces: number = 2;
 
     constructor(position: Vector, direction: Vector, world: World) {
         this.position = position;
         this.direction = direction;
         this.world = world;
+
+        this.sprite = new Sprite('public/moving.png', 50, 50, {
+            run: { width: 50, height: 50, gap: 0, count: 4, interval: 250, finite: false, x: 0, y: 0 }
+        });
+
+        this.sprite.play('run');
+        this.sprite.rotate(direction);
     }
 
-    update() {
+    update(delta: number) {
         if (this.bounce >= this.maxBounces) {
             this.active = false;
-            this.world.effects.push(new Effect(this.position, 3, 100, 3000));
+            this.world.effects.push(new Effect(this.position));
             return false;
         }
 
         this.position = this.position.add(this.direction.scale(this.speed));
+        this.sprite.update(delta);
 
         for (const entity of this.world.entities) {
             for (const line of entity.lines) {
                 if (line.intersect(this.position)) {
                     this.bounce++;
-                    this.speed *= 0.95; // Reduce speed on bounce
+
                     const ray = new Ray(this.position, this.direction);
                     const intersection = ray.intersect(line);
 
@@ -48,6 +58,8 @@ export class Bullet {
                         const reflectedDir = ray.reflect(normal);
 
                         this.direction = reflectedDir;
+
+                        this.sprite.rotate(this.direction);
                     }
 
                     break;

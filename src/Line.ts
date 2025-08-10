@@ -1,4 +1,4 @@
-import type { Vector } from "./Vector";
+import { Vector } from "./Vector";
 
 export class Line {
     p1: Vector;
@@ -7,6 +7,17 @@ export class Line {
     constructor(p1: Vector, p2: Vector) {
         this.p1 = p1;
         this.p2 = p2;   
+    }
+
+    get center(): Vector {
+        return new Vector(
+            (this.p1.x + this.p2.x) / 2,
+            (this.p1.y + this.p2.y) / 2
+        );
+    }
+
+    get radius(): number {
+        return this.p1.sub(this.p2).length() / 2;
     }
 
     intersect(vector: Vector, tolerance = 4): boolean {
