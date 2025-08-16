@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "google-closure-compiler": "^20250810.0.0",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
   }

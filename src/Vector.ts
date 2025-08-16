@@ -6,8 +6,17 @@ export class Vector {
         this.x = x;
         this.y = y;
     }
+    static radian(angle: number) {
+        return new Vector(Math.sin(angle), Math.cos(angle)).normalize();
+    }
+    static random() {
+        return new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize();
+    }
     equal(v: Vector) {
         return this.x === v.x && this.y === v.y;
+    }
+    empty() {
+        return this.equal(new Vector(0, 0));
     }
     add(v: Vector) {
         return new Vector(this.x + v.x, this.y + v.y);
@@ -17,6 +26,10 @@ export class Vector {
     }
     dot(v: Vector) {
         return this.x * v.x + this.y * v.y;
+    }
+    dist(v: Vector) {
+        const d = this.sub(v);
+        return Math.sqrt(d.x ** 2 + d.y ** 2);
     }
     cross(v: Vector) {
         return this.x * v.y - this.y * v.x;

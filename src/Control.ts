@@ -14,14 +14,15 @@ export class Control {
     }
 
     onKeyDown = (event: KeyboardEvent) => {
-        this.state.set(event.key, true);
+        this.state.set(event.code, true);
+
         if (event.key === ' ') {
             this.emitter.emit('space');
         }
     }
 
     onKeyUp = (event: KeyboardEvent) => {
-        this.state.set(event.key, false);
+        this.state.set(event.code, false);
     }
 
     onMouseMove = (e: MouseEvent) => {
@@ -31,14 +32,23 @@ export class Control {
         this.y = e.clientY - rect.top;
     }
 
-    onMouseDown = () => {
-        this.emitter.emit('mousedown');
+    onMouseDown = (e: MouseEvent) => {
+        if (e.button === 0) {
+            this.emitter.emit('leftClick');
+        } else if (e.button === 2) {
+            this.emitter.emit('rightClick');
+        }
+    }
+
+    onContextMenu = (event: Event) => {
+        event.preventDefault();
     }
 
     init() {
         window.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('keyup', this.onKeyUp);
         window.addEventListener('mousedown', this.onMouseDown);
+        window.addEventListener('contextmenu', this.onContextMenu);
 
         this.canvas.addEventListener('mousemove', this.onMouseMove);
     }
@@ -46,7 +56,8 @@ export class Control {
     dispose() {
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
-        window.addEventListener('mousedown', this.onMouseDown);
+        window.removeEventListener('mousedown', this.onMouseDown);
+        window.removeEventListener('contextmenu', this.onContextMenu);
 
         this.canvas.removeEventListener('mousemove', this.onMouseMove);
     }

@@ -1,4 +1,3 @@
-import type { Line } from "./Line";
 import type { Vector } from "./Vector";
 
 export class Ray {
@@ -10,11 +9,10 @@ export class Ray {
         this.direction = direction.normalize();
     }
 
-    intersect(line: Line): Vector | null {
+    intersect(line: [Vector, Vector]): Vector | null {
         const p = this.origin;
         const r = this.direction;
-        const a = line.p1;
-        const b = line.p2;
+        const [a, b] = line;
         const s = b.sub(a);
 
         const rxs = r.cross(s);
@@ -34,8 +32,17 @@ export class Ray {
         return null;
     }
 
-    reflect(normal: Vector): Vector {
+    reflect(line: [Vector, Vector]): Vector {
+        const [v1, v2] = line;
+        const dir = v2.sub(v1).normalize();
+        let normal = dir.perpendicular().normalize();
+
+        if (normal.dot(this.direction) > 0) {
+            normal = normal.negate();
+        }
+
         const dot = this.direction.dot(normal);
+
         return this.direction.sub(normal.scale(2 * dot)).normalize();
     }
 }

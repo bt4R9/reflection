@@ -1,109 +1,158 @@
 import { Character } from "./Character";
+import type { Game } from "./Game";
 import { Projectile } from "./Projectile";
 import { Ray } from "./Ray";
 import { Sprite } from "./Sprite";
 import { Vector } from "./Vector";
-import type { World } from "./World";
 
 export class Player {
     character: Character;
-    world: World;
+    sprite: Sprite;
+    game: Game;
+    isAttacking: boolean = false;
 
-    constructor(position: Vector, world: World) {
+    constructor(position: Vector, game: Game) {
+        this.game = game;
         this.character = new Character({
             position,
-            width: 64,
-            height: 64,
-            speed: 2,
-            sprite: new Sprite(
-                'public/mage.png',
-                48,
-                64,
-                {
-                    idle: { width: 64, height: 64, gap: 76, count: 10, interval: 250, finite: false, x: 0, y: 0 },
-                    run: { width: 64, height: 64, gap: 76, count: 8, interval: 100, finite: false, x: 0, y: 80 },
-                }
-            ),
+            width: 16,
+            height: 16,
+            speed: 2.5,
+            hp: 100,
+            game,
         });
-
-        this.world = world;
-        this.updateCharacter(0);
-    }
-
-    fire = () => {
-        this.world.projectiles.push(new Projectile(this.character.position, this.ray.direction, this.world));
+        this.sprite = this.game.sprites['cat'];
     }
 
     init() {
-        this.world.emitter.on('mousedown', this.fire);
+        this.game.emitter.on('leftClick', this.attack);
+        this.game.emitter.on('rightClick', this.throw);
     }
 
     dispose() {
-        this.world.emitter.off('mousedown', this.fire);
+        this.game.emitter.off('leftClick', this.attack);
+        this.game.emitter.off('rightClick', this.throw);
+    }
+
+    attack = () => {
+        if (!this.isAttacking) {
+            this.sprite.play('attack');
+            this.isAttacking = true;
+
+            const rats = this.game.scene?.rats ?? [];
+
+            for (const rat of rats) {
+                if (this.character.position.dist(rat.character.position) < 30) {
+                    rat.character.hp -= 25;
+                }
+            }
+        }
+    }
+
+    throw = () => {
+        const scene = this.game.scene;
+
+        if (!scene) {
+            return;
+        }
+
+        if (scene.projectiles.length > 1) {
+            return;
+        }
+
+        scene.projectiles.push(new Projectile(this.character.position.add(this.ray.direction.scale(10)), this.ray.direction, this.game))
     }
 
     update(delta: number) {
-        const control = this.world.control;
+        const control = this.game.control;
+
         let direction = new Vector(0, 0);
 
-        this.character.speed = 0;
-
-        if (control.state.get('w')) {
-            this.character.speed = 1;
+        if (control.state.get('KeyW')) {
             direction = direction.add(new Vector(0, -1));
         }
 
-        if (control.state.get('s')) {
-            this.character.speed = 1;
+        if (control.state.get('KeyS')) {
             direction = direction.add(new Vector(0, 1));
         }
 
-        if (control.state.get('a')) {
-            this.character.speed = 1;
+        if (control.state.get('KeyA')) {
             direction = direction.add(new Vector(-1, 0));
         }
 
-        if (control.state.get('d')) {
-            this.character.speed = 1;
+        if (control.state.get('KeyD')) {
             direction = direction.add(new Vector(1, 0));
         }
 
-        this.character.velocity = direction.normalize();
+        this.character.direction = direction.normalize();
 
         this.updateCharacter(delta);
     }
 
     private updateCharacter(delta: number) {
-        const nextFrame = this.character.speed > 0 ? 'run' : 'idle';
-        const sprite = this.character.sprite;
+        const scene = this.game.scene;
 
-        if (!sprite) {
+        if (!scene) {
             return;
         }
 
-        if (this.character.velocity.x < 0) {
-            this.character.sprite!.hotizontalInverse = true;
-        } else if (this.character.velocity.x > 0) {
-            this.character.sprite!.hotizontalInverse = false;
+        let nextFrame = 'idle';
+
+        if (this.isAttacking) {
+            if (this.sprite.frame.finished) {
+                this.isAttacking = false;
+                nextFrame = this.character.direction.empty() ? 'idle' : 'run';
+            } else {
+                nextFrame = 'attack';
+            }
+        } else {
+            nextFrame = this.character.direction.empty() ? 'idle' : 'run';
         }
 
-        sprite.play(nextFrame);
+        this.sprite.play(nextFrame);
 
-        if (this.character.velocity.x < 0) {
-            sprite.hotizontalInverse = true;
-        } else if (this.character.velocity.x > 0) {
-            sprite.hotizontalInverse = false;
+        if (this.character.direction.x < 0) {
+            this.sprite.hi = true;
+        } else if (this.character.direction.x > 0) {
+            this.sprite.hi = false;
         }
 
-        this.character.update();
-        this.character.move();
+        for (const projectile of scene.projectiles) {
+            const distance = projectile.position.dist(this.character.position);
 
-        sprite.update(delta);
+            if (distance <= (Math.max(this.character.width, this.character.height))) {
+                if (projectile.speed < 2) {
+                    projectile.active = false;
+                }
+                break;
+            }
+        }
+
+        this.character.update(true);
+        this.sprite.update(delta);
+    }
+
+    draw(context: CanvasRenderingContext2D) {
+        if (this.game.scene?._debug) {
+            context.fillStyle = 'red';
+
+            context.beginPath();
+            context.ellipse(this.character.position.x, this.character.position.y, this.character.width, this.character.height, Math.PI / 4, 0, 360);
+            context.fill();
+        }
+
+        this.sprite.draw(
+            context,
+            this.character.position.x,
+            this.character.position.y,
+            this.character.width * 3,
+            this.character.height * 3
+        );
     }
 
     get ray() {
-        const y = this.world.control.y;
-        const x = this.world.control.x;
+        const y = this.game.control.y;
+        const x = this.game.control.x;
         const direction = new Vector(x, y).sub(this.character.position).normalize();
 
         return new Ray(this.character.position, direction);
