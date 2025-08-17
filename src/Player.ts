@@ -121,7 +121,7 @@ export class Player {
             const distance = projectile.position.dist(this.character.position);
 
             if (distance <= (Math.max(this.character.width, this.character.height))) {
-                if (projectile.speed < 2) {
+                if (projectile.speed < 3) {
                     projectile.active = false;
                 }
                 break;

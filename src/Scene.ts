@@ -7,6 +7,7 @@ import type { Rat } from "./Rat";
 export class Scene {
     sceneDraw: (context: CanvasRenderingContext2D) => void
 
+    interactive: boolean;
     entities: Entity[] = [];
     objects2D: Object2D[] = [];
     projectiles: Projectile[] = [];
@@ -16,8 +17,9 @@ export class Scene {
 
     _debug = false;
 
-    constructor(draw: (context: CanvasRenderingContext2D) => void) {
+    constructor(draw: (context: CanvasRenderingContext2D) => void, interactive: boolean = true) {
         this.sceneDraw = draw;
+        this.interactive = interactive;
     }
 
     private *gen() {
@@ -37,6 +39,10 @@ export class Scene {
     }
 
     update(delta: number) {
+        if (!this.interactive) {
+            return;
+        }
+
         this.game?.player?.update(delta);
 
         for (const entity of this.entities) {
@@ -67,10 +73,11 @@ export class Scene {
     }
 
     draw(context: CanvasRenderingContext2D) {
-        // const width = this.game?.renderer.canvas.width ?? 0;
-        // const height = this.game?.renderer.canvas.height ?? 0;
-
         this.sceneDraw(context);
+
+        if (!this.interactive) {
+            return;
+        }
 
         for (const object2D of this.objects2D) {
             object2D.draw(context);
@@ -85,19 +92,7 @@ export class Scene {
         }
 
         for (const rat of this.rats) {
-            const x = rat.character.position.x;
-            const y = rat.character.position.y;
-            rat.sprite.draw(context, x, y, 64, 64);
-            context.beginPath();
-            context.fillStyle = 'red';
-            context.rect(x - 10, y - 32, 32, 4);
-            context.fill();
-            context.closePath();
-            context.beginPath();
-            context.fillStyle = 'green';
-            context.rect(x - 10, y - 32, 32 * (rat.character.hp / 100), 4);
-            context.fill();
-            context.closePath();
+            rat.draw(context);
         }
 
         this.game?.player?.draw(context);

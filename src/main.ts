@@ -1,6 +1,5 @@
 import { Game } from "./Game";
 import { Resource } from "./Resource";
-import { getScene } from "./scenes/1";
 import { Sprite } from "./Sprite";
 
 const node = document.getElementById('app') as HTMLCanvasElement;
@@ -32,7 +31,8 @@ game.sprites = {
     window: {width: 16, height: 32, sx: 17, sy: 69 },
     tv: { width: 32, height: 16, sx: 153, sy: 85},
     tv_table: { width: 32, height: 14, sx: 306, sy: 70},
-    chair2: {width: 13, height: 13, sx: 307, sy: 172}
+    chair2: {width: 13, height: 13, sx: 307, sy: 172},
+    flowers: {width: 8, height: 12, sx: 123, sy: 21}
   }),
   interior: new Sprite(game.resources['interior'], {
     corner: { width: 8, height: 8, sx: 27, sy: 100 },
@@ -53,10 +53,6 @@ game.sprites = {
     run: { width: 32, height: 32, gap: 0, count: 8, interval: 200, finite: false, sx: 2, sy: 103 }
   })
 };
-
-const scene1 = getScene(game);
-
-game.setScene(scene1);
 
 game
   .load()

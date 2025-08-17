@@ -25,7 +25,7 @@ export class Rat {
         });
         this.sprite = new Sprite(game.resources['rat'], {
             run: { width: 32, height: 32, gap: 0, count: 10, interval: 200, finite: false, sx: 2, sy: 80 },
-            death: { width: 32, height: 32, gap: 0, count: 10, interval: 200, finite: true, sx: 2, sy: 140 }
+            death: { width: 32, height: 32, gap: 0, count: 10, interval: 100, finite: true, sx: 2, sy: 140 }
         })
 
         this.character.direction = Vector.random();
@@ -76,11 +76,12 @@ export class Rat {
             for (const projectile of scene.projectiles) {
                 const distance = projectile.position.dist(this.character.position);
 
-                if (distance <= 16 && projectile.speed > 2) {
+                if (this.state === 'run' && distance <= 16 && projectile.speed > 2) {
                     this.state = 'caught';
                     this.sprite.play('death');
                     this.cooldown = 250;
                     this.cooldownCounter = 0;
+                    this.character.hp -= 10;
                     break;
                 }
             }
@@ -93,5 +94,22 @@ export class Rat {
         }
 
         this.sprite.update(delta);
+    }
+
+    draw(context: CanvasRenderingContext2D) {
+        const x = this.character.position.x;
+        const y = this.character.position.y;
+        this.sprite.draw(context, x, y, 64, 64);
+
+        context.beginPath();
+        context.fillStyle = 'red';
+        context.rect(x - 10, y - 32, 32, 4);
+        context.fill();
+        context.closePath();
+        context.beginPath();
+        context.fillStyle = 'green';
+        context.rect(x - 10, y - 32, 32 * (this.character.hp / 100), 4);
+        context.fill();
+        context.closePath();
     }
 }

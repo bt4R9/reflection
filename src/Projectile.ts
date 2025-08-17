@@ -45,7 +45,7 @@ export class Projectile {
 
         for (const entity of scene.allEntities) {
             if (entity) {
-                const line = entity.intersect(this.position, 8);
+                const line = entity.intersect(this.position, 12);
 
                 if (line) {
                     this.bounce += 1;
