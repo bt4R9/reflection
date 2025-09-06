@@ -25,7 +25,7 @@ export class Game {
     sound = new Sound();
     panel?: Panel;
     startTime = 0;
-    s = 'level0';
+    s = 'intro0';
 
     sceneOrder: string[] = [
         'intro0',
