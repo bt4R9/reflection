@@ -1,6 +1,6 @@
 import type { Entity } from "./Entity";
 import type { Game } from "./Game";
-import type { Object2D } from "./Object2D";
+import type { O2D } from "./Object2D";
 import type { Projectile } from "./Projectile";
 import type { Rat } from "./Rat";
 
@@ -9,16 +9,23 @@ export class Scene {
 
     interactive: boolean;
     entities: Entity[] = [];
-    objects2D: Object2D[] = [];
+    objects2D: O2D[] = [];
     projectiles: Projectile[] = [];
     rats: Rat[] = [];
+    gameTime: number = 0;
+    timeLeft: number = 0;
 
     game?: Game;
 
     _debug = false;
 
-    constructor(draw: (context: CanvasRenderingContext2D) => void, interactive: boolean = true) {
+    constructor(
+        draw: (context: CanvasRenderingContext2D) => void,
+        interactive: boolean = true,
+        gameTime: number = 0,
+    ) {
         this.sceneDraw = draw;
+        this.gameTime = gameTime;
         this.interactive = interactive;
     }
 
@@ -43,6 +50,14 @@ export class Scene {
             return;
         }
 
+        this.timeLeft = (this.game?.scene.gameTime ?? 0) - (Date.now() - (this.game?.startTime ?? 0));
+
+        if (this.timeLeft <= 0) {
+            this.game?.setScene('gameover');
+            this.game?.sound.stopMusic();
+            return;
+        }
+
         this.game?.player?.update(delta);
 
         for (const entity of this.entities) {
@@ -53,21 +68,17 @@ export class Scene {
             object2D.update(delta)
         }
 
-        for (let i = 0; i < this.projectiles.length; i++) {
-            this.projectiles[i].update(delta);
-
-            if (!this.projectiles[i].active) {
-                this.projectiles.splice(i, 1);
-                i -= 1;
-            }
+        for (const projectile of this.projectiles) {
+            projectile.update(delta);
         }
 
         for (let i = 0; i < this.rats.length; i++) {
             this.rats[i].update(delta);
 
-            if (this.rats[i].character.hp <= 0) {
+            if (this.rats[i].c.hp <= 0) {
                 this.rats.splice(i, 1);
                 i -= 1;
+                this.game?.sound.playEffect('death');
             }
         }
     }
@@ -79,6 +90,8 @@ export class Scene {
             return;
         }
 
+        this.game?.panel?.draw(context);
+
         for (const object2D of this.objects2D) {
             object2D.draw(context);
 
@@ -88,7 +101,7 @@ export class Scene {
         }
 
         for (const projectile of this.projectiles) {
-            projectile.sprite.draw(context, projectile.position.x, projectile.position.y, 16, 16);
+            projectile.draw(context);
         }
 
         for (const rat of this.rats) {

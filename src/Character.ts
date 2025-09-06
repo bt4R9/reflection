@@ -1,40 +1,34 @@
 import type { Game } from "./Game";
-import { Vector } from "./Vector";
-
-export interface CharacterParams {
-    position: Vector;
-    width: number;
-    height: number;
-    speed: number;
-    hp: number;
-    game: Game;
-}
+import { Vec } from "./Vector";
 
 export class Character {
-    position: Vector;
-    width: number;
-    height: number;
-    speed: number;
+    p: Vec;
+    w: number;
+    h: number;
+    s: number;
     hp: number;
-    direction: Vector;
+    d: Vec;
     game: Game;
 
-    constructor(params: CharacterParams) {
-        this.position = params.position;
-        this.width = params.width;
-        this.height = params.height;
-        this.speed = params.speed;
-        this.hp = params.hp;
-        this.game = params.game;
-        this.direction = new Vector(0, 0);
+    constructor(p: Vec, w: number, h: number, s: number, hp: number, game: Game) {
+        this.p = p
+        this.w = w
+        this.h = h
+        this.s = s
+        this.hp = hp
+        this.game = game
+        this.d = new Vec(0, 0);
     }
 
-    wouldCollide(next: Vector) {
+    wouldCollide(next: Vec) {
         const scene = this.game.scene;
-        if (!scene) return false;
+
+        if (!scene) {
+            return false;
+        }
 
         for (const entity of scene.allEntities) {
-            if (entity.intersect(next, Math.max(this.width, this.height))) {
+            if (entity.intersect(next, Math.max(this.w, this.h))) {
                 return true;
             }
         }
@@ -42,40 +36,40 @@ export class Character {
         return false;
     }
 
-    update(smooth: boolean) {
-        if (this.speed === 0) {
+    update(smooth: boolean = false) {
+        if (this.s === 0) {
             return;
-        }
+        };
 
-        const move = this.direction.scale(this.speed);
+        const move = this.d.scale(this.s);
 
-        const nextX = this.position.add(new Vector(move.x, 0));
-        const nextY = this.position.add(new Vector(0, move.y));
-        const nextXY = this.position.add(move);
+        const nextX = this.p.add(new Vec(move.x, 0));
+        const nextY = this.p.add(new Vec(0, move.y));
+        const nextXY = this.p.add(move);
 
         if (smooth) {
             if (!this.wouldCollide(nextXY)) {
-                this.position = nextXY;
+                this.p = nextXY;
             } else {
                 let moved = false;
 
                 if (!this.wouldCollide(nextX)) {
-                    this.position = nextX;
+                    this.p = nextX;
                     moved = true;
                 }
 
                 if (!this.wouldCollide(nextY)) {
-                    this.position = nextY;
+                    this.p = nextY;
                     moved = true;
                 }
 
                 if (!moved) {
-                    this.position = this.position;
+                    this.p = this.p;
                 }
             }
         } else {
             if (!this.wouldCollide(nextXY)) {
-                this.position = nextXY;
+                this.p = nextXY;
             }
         }
     }

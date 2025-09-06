@@ -1,11 +1,11 @@
 import { Character } from "./Character";
 import { Sprite } from "./Sprite";
-import { Vector } from "./Vector";
+import { Vec } from "./Vector";
 import type { Game } from "./Game";
 
 export class Rat {
     game: Game;
-    character: Character;
+    c: Character;
     counter: number = 0;
     current: number = 0;
     sprite: Sprite;
@@ -13,22 +13,16 @@ export class Rat {
     cooldownCounter: number = 0;
     state: 'run' | 'caught' = 'run';
 
-    constructor(position: Vector, game: Game) {
+    constructor(p: [number, number], game: Game) {
         this.game = game;
-        this.character = new Character({
-            width: 20,
-            height: 20,
-            speed: 2.8,
-            position,
-            hp: 100,
-            game,
-        });
-        this.sprite = new Sprite(game.resources['rat'], {
-            run: { width: 32, height: 32, gap: 0, count: 10, interval: 200, finite: false, sx: 2, sy: 80 },
-            death: { width: 32, height: 32, gap: 0, count: 10, interval: 100, finite: true, sx: 2, sy: 140 }
-        })
+        this.c = new Character(new Vec(p[0], p[1]), 10, 10, 2.8, 100, game);
 
-        this.character.direction = Vector.random();
+        this.sprite = new Sprite(game.resources['rat'], {
+            run: [8, 86, 16, 10, 10, 16, 200, false],
+            death: [8, 150, 16, 10, 10, 16, 100, true]
+        });
+
+        this.c.d = Vec.random();
         this.state = 'run';
         this.sprite.play('run');
 
@@ -47,12 +41,12 @@ export class Rat {
             return;
         }
 
-        const prevPosition = this.character.position.clone();
+        const prevPosition = this.c.p.clone();
 
         this.current += 1;
 
         if (this.current === this.counter) {
-            this.character.direction = Vector.random();
+            this.c.d = Vec.random();
             this.setCounter();
         }
 
@@ -66,30 +60,31 @@ export class Rat {
         }
 
         if (this.state === 'run') {
-            this.character.update(false);
+            this.c.update();
 
-            while (this.character.position.equal(prevPosition)) {
-                this.character.direction = Vector.random();
-                this.character.update(false);
+            while (this.c.p.equal(prevPosition)) {
+                this.c.d = Vec.random();
+                this.c.update();
             }
 
             for (const projectile of scene.projectiles) {
-                const distance = projectile.position.dist(this.character.position);
+                const distance = projectile.p.dist(this.c.p);
 
                 if (this.state === 'run' && distance <= 16 && projectile.speed > 2) {
                     this.state = 'caught';
                     this.sprite.play('death');
+                    this.game.sound.playEffect('stun');
                     this.cooldown = 250;
                     this.cooldownCounter = 0;
-                    this.character.hp -= 10;
+                    this.c.hp -= 10;
                     break;
                 }
             }
         }
 
-        if (this.character.direction.x < 0) {
+        if (this.c.d.x < 0) {
             this.sprite.hi = false;
-        } else if (this.character.direction.x > 0) {
+        } else if (this.c.d.x > 0) {
             this.sprite.hi = true;
         }
 
@@ -97,19 +92,28 @@ export class Rat {
     }
 
     draw(context: CanvasRenderingContext2D) {
-        const x = this.character.position.x;
-        const y = this.character.position.y;
-        this.sprite.draw(context, x, y, 64, 64);
+        const x = this.c.p.x;
+        const y = this.c.p.y;
+        this.sprite.draw(context, x, y, 16 * 2, 10 * 2);
 
         context.beginPath();
         context.fillStyle = 'red';
-        context.rect(x - 10, y - 32, 32, 4);
+        context.rect(x - 10, y - 24, 32, 4);
         context.fill();
         context.closePath();
         context.beginPath();
         context.fillStyle = 'green';
-        context.rect(x - 10, y - 32, 32 * (this.character.hp / 100), 4);
+        context.rect(x - 10, y - 24, 32 * (this.c.hp / 100), 4);
         context.fill();
         context.closePath();
+
+        if (this.game.scene?._debug) {
+            context.fillStyle = 'red';
+
+            context.beginPath();
+            context.ellipse(this.c.p.x, this.c.p.y, 3, 3, Math.PI / 4, 0, 360);
+            context.fill();
+            context.closePath();
+        }
     }
 }

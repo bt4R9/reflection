@@ -1,8 +1,15 @@
 export const B = 32;
+export const R = 32 / 4;
 export const W = B * 24;
 export const H = B * 18;
 export const HW = W / 2;
 export const HH = H / 2;
+
+export const drawSkip = (ctx: CanvasRenderingContext2D) => {
+    ctx.font = '16px monospace';
+    ctx.fillStyle = '#4d4343';
+    ctx.fillText('[Press space to skip]', HW, H - B * 2);
+}
 
 export const animate = (texts: string[], max: number, cycles = 100) => {
     const wrapped = texts.map(text => wrap(text));

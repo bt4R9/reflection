@@ -1,6 +1,6 @@
-import { Frame, type FrameParams } from "./Frame";
+import { Frame } from "./Frame";
 import type { Resource } from "./Resource";
-import { Vector } from "./Vector";
+import { Vec } from "./Vector";
 
 export class Sprite {
     resource: Resource;
@@ -15,13 +15,13 @@ export class Sprite {
 
     constructor(
         resource: Resource,
-        frames: Record<string, FrameParams>,
+        frames: Record<string, ConstructorParameters<typeof Frame>>,
     ) {
         this.resource = resource;
         this.frames = {};
 
         for (const [key, params] of Object.entries(frames)) {
-            this.frames[key] = new Frame(params);
+            this.frames[key] = new Frame(...params);
         }
 
         const key = Object.keys(frames)[0];
@@ -30,9 +30,9 @@ export class Sprite {
         this.frame = this.frames[key];
 
         this.localCanvas = document.createElement('canvas');
-        this.localCanvas.width = this.frame.width;
-        this.localCanvas.height  = this.frame.height;
-        this.localContext = this.localCanvas.getContext('2d')!;
+        this.localCanvas.width = this.frame.w;
+        this.localCanvas.height  = this.frame.h;
+        this.localContext = this.localCanvas.getContext('2d', { alpha: true })!;
         this.localContext.imageSmoothingEnabled = false;
     }
 
@@ -48,8 +48,8 @@ export class Sprite {
         this.frame.update(delta);
     }
 
-    rotate(vector: Vector) {
-        this.rotation = Math.atan2(vector.y, vector.x);
+    rotate(vec: Vec) {
+        this.rotation = Math.atan2(vec.y, vec.x);
     }
 
     draw(globalContext: CanvasRenderingContext2D, globalX: number, globalY: number, w?: number, h?: number) {
@@ -59,8 +59,8 @@ export class Sprite {
 
         const frame = this.frame;
 
-        const width = w ?? frame.width;
-        const height = h ?? frame.height;
+        const width = w ?? frame.w;
+        const height = h ?? frame.h;
 
         this.localCanvas.width = width;
         this.localCanvas.height = height;
@@ -84,7 +84,7 @@ export class Sprite {
         localContext.drawImage(
             this.resource.img,
             frame.x, frame.y,
-            frame.width, frame.height,
+            frame.w, frame.h,
             -width / 2 | 0, -height / 2 | 0,
             width, height
         );

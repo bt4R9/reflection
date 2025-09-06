@@ -10,7 +10,7 @@ export class Renderer {
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
-        this.context = this.canvas.getContext('2d', { alpha: false })!;
+        this.context = this.canvas.getContext('2d', { alpha: false, willReadFrequently: true })!;
 
         const ratio = window.devicePixelRatio;
         const rect = canvas.getBoundingClientRect();

@@ -1,51 +1,32 @@
-import { animate, B, H, HH, HW, W } from "../common";
+import { animate, B, drawSkip, H, HH, HW, W } from "../common";
 import type { Game } from "../Game";
 import { Scene } from "../Scene";
 
-function createColorStepper(steps = 100) {
-  let currentStep = 0;
-
-  return function nextColor() {
-    if (currentStep > steps) currentStep = steps;
-
-    // Calculate red value (0 to 255)
-    const red = Math.round((currentStep / steps) * 255);
-    
-    // Convert to 2-digit hex
-    const hexRed = red.toString(16).padStart(2, '0');
-
-    currentStep++;
-
-    // Return color string
-    return `#${hexRed}0000`;
-  };
-}
-
 export const getScene1 = (game: Game) => {
     const fn = animate([
-        'ACT 1',
-        'Kitchen'
-    ], 24, 250);
+        'They say black cat brings bad luck',
+        'But today the black cat is unlucky',
+        'There are rats in the house. Get rid of them before the owners come.',
+        'Don\'t let your reputation be ruined or you\'ll be thrown out of the house',
+    ], 24);
 
     let t = -1;
-
-    const color = createColorStepper(800);
 
     const scene = new Scene((ctx) => {
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, W, H);
 
-        const {lines, done} = fn();
+        const { lines, done } = fn();
 
         if (done && t === -1) {
             t = setTimeout(() => {
-                if (game.s < 2) {
-                    game.setScene(game.s + 1);
+                if (game.order < 2) {
+                    game.nextScene();
                 }
-            }, 3000);
+            }, 2000);
         }
 
-        ctx.fillStyle = color();
+        ctx.fillStyle = '#fff';
         ctx.textBaseline = 'top';
         ctx.textAlign = 'center';
         ctx.font = '24px monospace';
@@ -59,9 +40,7 @@ export const getScene1 = (game: Game) => {
 
         ctx.fill();
 
-        ctx.font = '16px monospace';
-        ctx.fillStyle = '#4d4343';
-        ctx.fillText('[Press space to skip]', HW, H - B * 2);
+        drawSkip(ctx);
     }, false);
 
     return scene;

@@ -1,45 +1,41 @@
-export interface FrameParams {
-    width: number;
-    height: number;
-    gap?: number;
-    count?: number;
-    interval?: number;
-    finite?: boolean;
-    sx: number;
-    sy: number;
-}
-
 export class Frame {
-    gap: number;
-    count: number;
-    interval: number;
-    finite: boolean;
+    g: number;
+    c: number;
+    i: number;
+    f: boolean;
     sx: number;
     sy: number;
-    width: number;
-    height: number;
+    w: number;
+    h: number;
     timer: number;
     index: number;
     finished: boolean = false;
 
     constructor(
-        params: FrameParams,
+        x: number,
+        y: number,
+        w: number,
+        h: number,
+        c?: number,
+        g?: number,
+        i?: number,
+        f?: boolean,
     ) {
-        this.gap = params.gap ?? 0;
-        this.count = params.count ?? 1;
-        this.interval = params.interval ?? Infinity;
-        this.finite = params.finite ?? this.count === 1;
-        this.sx = params.sx;
-        this.sy = params.sy;
-        this.width = params.width;
-        this.height = params.height;
+        this.g = g ?? 0;
+        this.c = c ?? 1;
+        this.i = i ?? Infinity;
+        this.f = f ?? this.c === 1;
+        this.sx = x;
+        this.sy = y;
+        this.w = w;
+        this.h = h;
 
         this.timer = 0;
         this.index = 0;
     }
 
     get x() {
-        return this.sx + this.index * (this.width + this.gap);
+        return this.sx + this.index * (this.w + this.g);
     }
 
     get y() {
@@ -55,18 +51,18 @@ export class Frame {
     update(delta: number) {
         this.timer += delta;
 
-        if (this.timer < this.interval || this.finished) {
+        if (this.timer < this.i || this.finished) {
             return;
         }
 
         this.timer = 0;
         this.index = this.index + 1;
 
-        if (this.index >= this.count) {
-            if (!this.finite) {
+        if (this.index >= this.c) {
+            if (!this.f) {
                 this.index = 0;
             } else {
-                this.index = this.count - 1;
+                this.index = this.c - 1;
                 this.finished = true;
             }
         }

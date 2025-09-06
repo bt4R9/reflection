@@ -1,50 +1,43 @@
-import { animate, B, H, HH, HW, W } from "../common";
+import { H, W, B, HH, R, HW, drawSkip } from "../common";
 import type { Game } from "../Game";
 import { Scene } from "../Scene";
 
 export const getScene0 = (game: Game) => {
-    const fn = animate([
-        'They say black cat brings bad luck',
-        'But today the black cat is unlucky',
-        'Once a predator, now it is just a pitiful parody',
-        'Your reputation is tarnished, the masters are displeased',
-        'Get your reputation back as a predator to stay home',
-    ], 24);
-
-    let t = -1;
-
     const scene = new Scene((ctx) => {
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, W, H);
 
-        const {lines, done} = fn();
-
-        if (done && t === -1) {
-            t = setTimeout(() => {
-                if (game.s < 1) {
-                    game.setScene(game.s + 1);
-                }
-            }, 2000);
-        }
+        ctx.strokeStyle = '#ffffff';
+        ctx.strokeRect(HW - B * 3, HH - B, B, B);
+        ctx.strokeRect(HW - B * 3, HH + R, B, B);
+        ctx.strokeRect(HW - B * 2 + R, HH + R, B, B);
+        ctx.strokeRect(HW - B * 4 - R, HH + R, B, B);
 
         ctx.fillStyle = '#fff';
         ctx.textBaseline = 'top';
         ctx.textAlign = 'center';
-        ctx.font = '24px monospace';
+        ctx.font = '14px monospace';
 
-        let offsetY = 0;
+        ctx.fillText('W', HW - B * 3 + R * 2, HH - R * 3);
+        ctx.fillText('S', HW - B * 3 + R * 2, HH + R * 2);
+        ctx.fillText('A', HW - B * 4 + R, HH + R * 2);
+        ctx.fillText('D', HW - B * 2 + R * 3, HH + R * 2);
 
-        for (const line of lines) {
-            ctx.fillText(line, HW, HH - B + offsetY);
-            offsetY += B;
-        }
+        ctx.strokeRect(HW + 50, HH - 50, 30, 50);
+        ctx.strokeRect(HW + 50 + 30, HH - 50, 30, 50);
+        ctx.strokeRect(HW + 50, HH - 50, 60, 125);
 
-        ctx.fill();
+        ctx.fillText('Attack', HW + 40, HH - 75);
+        ctx.fillText('Throw', HW + 120, HH - 75);
 
-        ctx.font = '16px monospace';
-        ctx.fillStyle = '#4d4343';
-        ctx.fillText('[Press space to skip]', HW, H - B * 2);
+        drawSkip(ctx);
     }, false);
+
+    setTimeout(() => {
+        if (game.order < 1) {
+            game.nextScene();
+        }
+    }, 5000);
 
     return scene;
 }

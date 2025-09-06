@@ -1,11 +1,10 @@
 import { Entity } from "./Entity";
 import type { Sprite } from "./Sprite";
-import { Vector } from "./Vector";
+import { Vec } from "./Vector";
 
-export class Object2D {
-    position: Vector;
-    width: number;
-    height: number;
+export class O2D {
+    position: Vec;
+    scale: number;
     entity?: Entity;
     sprite: Sprite;
     frame: string;
@@ -17,8 +16,7 @@ export class Object2D {
 
     constructor(
         position: [number, number],
-        width: number,
-        height: number,
+        scale: number,
         sprite: Sprite,
         frame: string,
         params: {
@@ -27,21 +25,30 @@ export class Object2D {
             vi?: boolean,
         } = {}
     ) {
-        this.position = new Vector(position[0], position[1]);
+        this.position = new Vec(position[0], position[1]);
         this.sprite = sprite;
-        this.width = width;
-        this.height = height;
+        this.scale = scale;
         this.frame = frame;
         this.hb = params.hb ?? true;
         this.hi = params.hi ?? false;
         this.vi = params.vi ?? false;
-        this.finite = this.sprite.frame.finite;
+        this.finite = this.sprite.frame.f;
 
         if (this.hb) {
-            const hw = (width / 2) | 0;
-            const hh = (height / 2) | 0;
+            const hw = (this.width / 2) | 0;
+            const hh = (this.height / 2) | 0;
             this.entity = Entity.polygon(this.position, [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]], 'red');
         }
+
+        this.sprite.play(this.frame);
+    }
+
+    get width() {
+        return this.sprite.frame.w * this.scale;
+    }
+
+    get height() {
+        return this.sprite.frame.h * this.scale;
     }
 
     update(delta: number) {
@@ -53,7 +60,6 @@ export class Object2D {
     draw(context: CanvasRenderingContext2D) {
         this.sprite.hi = this.hi;
         this.sprite.vi = this.vi;
-        this.sprite.play(this.frame);
         this.sprite.draw(context, this.position.x, this.position.y, this.width, this.height);
     }
 }

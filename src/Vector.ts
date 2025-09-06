@@ -1,4 +1,4 @@
-export class Vector {
+export class Vec {
     x: number;
     y: number;
 
@@ -6,60 +6,63 @@ export class Vector {
         this.x = x;
         this.y = y;
     }
+
     static radian(angle: number) {
-        return new Vector(Math.sin(angle), Math.cos(angle)).normalize();
+        return new Vec(Math.sin(angle), Math.cos(angle)).norm();
     }
     static random() {
-        return new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize();
+        return new Vec(Math.random() * 2 - 1, Math.random() * 2 - 1).norm();
     }
-    equal(v: Vector) {
-        return this.x === v.x && this.y === v.y;
+    add(vec: Vec) {
+        return new Vec(this.x + vec.x, this.y + vec.y);
+    }
+    sub(vec: Vec) {
+        return new Vec(this.x - vec.x, this.y - vec.y);
+    }
+    equal(vec: Vec) {
+        return this.x === vec.x && this.y === vec.y
     }
     empty() {
-        return this.equal(new Vector(0, 0));
+        return this.equal(new Vec(0, 0))
     }
-    add(v: Vector) {
-        return new Vector(this.x + v.x, this.y + v.y);
+    scale(num: number) {
+        return new Vec(this.x * num, this.y * num);
     }
-    sub(v: Vector) {
-        return new Vector(this.x - v.x, this.y - v.y);
+    dot(vec: Vec) {
+        return this.x * vec.x + this.y * vec.y;
     }
-    dot(v: Vector) {
-        return this.x * v.x + this.y * v.y;
+    cross(vec: Vec) {
+        return this.x * vec.y - this.y * vec.x;
     }
-    dist(v: Vector) {
-        const d = this.sub(v);
-        return Math.sqrt(d.x ** 2 + d.y ** 2);
-    }
-    cross(v: Vector) {
-        return this.x * v.y - this.y * v.x;
-    }
-    scale(s: number) {
-        return new Vector(this.x * s, this.y * s);
-    }
-    length() {
+    len() {
         return Math.hypot(this.x, this.y);
     }
-    normalize() {
-        const len = this.length();
-        return len === 0 ? new Vector(0, 0) : this.scale(1 / len);
+    norm() {
+        const len = this.len();
+        return len !== 0 ? new Vec(this.x / len, this.y / len) : new Vec(0, 0);
     }
-    perpendicular() {
-        return new Vector(-this.y, this.x);
+    normal(vec: Vec) {
+        const edge = vec.sub(this);
+        return new Vec(-edge.y, edge.x).norm();
     }
-    negate() {
-        return new Vector(-this.x, -this.y);
+    dist(vec: Vec) {
+        return this.sub(vec).len();
     }
     clone() {
-        return new Vector(this.x, this.y);
+        return new Vec(this.x, this.y)
+    }
+    perpendicular() {
+        return new Vec(-this.y, this.x);
+    }
+    negate() {
+        return this.scale(-1);
+    }
+    reflect(normal: Vec) {
+        return this.sub(normal.scale(2 * this.dot(normal)));
     }
     rotate(angle: number) {
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);
-
-        return new Vector(
-            this.x * cos - this.y * sin,
-            this.x * sin + this.y * cos
-        );
+        return new Vec(this.x * cos - this.y * sin, this.x * sin + this.y * cos);
     }
 }

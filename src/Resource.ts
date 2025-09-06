@@ -8,14 +8,6 @@ export class Resource {
         this.img = new Image();
     }
 
-    get width() {
-        return this.img.width;
-    }
-
-    get height() {
-        return this.img.height;
-    }
-
     load(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.img.onload = () => {

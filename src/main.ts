@@ -16,42 +16,79 @@ game.resources = {
   cat: new Resource('public/sprites/cat.png'),
   ball: new Resource('public/sprites/ball.png'),
   rat: new Resource('public/sprites/rat.png'),
+  granny: new Resource('public/sprites/granny.png'),
+
+  fridge: new Resource('public/sprites/furniture/fridge.png'),
+  kitchen: new Resource('public/sprites/furniture/kitchen.png'),
+  window: new Resource('public/sprites/furniture/window.png'),
+  tv: new Resource('public/sprites/furniture/tv.png'),
+  table: new Resource('public/sprites/furniture/table.png'),
+  plant: new Resource('public/sprites/furniture/plant.png'),
+  chair: new Resource('public/sprites/furniture/chair.png'),
+  chair2: new Resource('public/sprites/furniture/chair2.png'),
+  door: new Resource('public/sprites/furniture/door.png'),
+  shelf: new Resource('public/sprites/furniture/shelf.png'),
+  wash: new Resource('public/sprites/furniture/wash.png'),
+  stable: new Resource('public/sprites/furniture/small-table.png'),
+  lamp: new Resource('public/sprites/furniture/lamp.png')
 };
 
 game.sprites = {
-  furniture: new Sprite(game.resources['furniture'], {
-    table: { width: 32, height: 16, sx: 0, sy: 17 },
-    sofa: { width: 32, height: 16, sx: 34, sy: 85 },
-    fridge: { width: 16, height: 32, sx: 204, sy: 290 },
-    kitchen: {width: 61, height: 32, sx: 442, sy: 119 },
-    chair_hor: { width: 11, height: 15, sx: 2, sy: 35 },
-    chair_ver_1: { width: 10, height: 15, sx: 3, sy: 52 },
-    chair_ver_2: { width: 10, height: 15, sx: 20, sy: 52 },
-    door: {width: 16, height: 32, sx: 340, sy: 120 },
-    window: {width: 16, height: 32, sx: 17, sy: 69 },
-    tv: { width: 32, height: 16, sx: 153, sy: 85},
-    tv_table: { width: 32, height: 14, sx: 306, sy: 70},
-    chair2: {width: 13, height: 13, sx: 307, sy: 172},
-    flowers: {width: 8, height: 12, sx: 123, sy: 21}
+  fridge: new Sprite(game.resources['fridge'], {
+    fridge: [0, 0, 39, 32]
   }),
-  interior: new Sprite(game.resources['interior'], {
-    corner: { width: 8, height: 8, sx: 27, sy: 100 },
-    wall: { width: 8, height: 8, sx: 9, sy: 0 },
-    wall2: { width: 8, height: 8, sx: 18, sy: 0 },
-    floor: { width: 8, height: 8, sx: 0, sy: 9 },
+  wash: new Sprite(game.resources['wash'], {
+    wash: [0, 0, 16, 16]
+  }),
+  kitchen: new Sprite(game.resources['kitchen'], {
+    kitchen: [0, 0, 61, 32]
+  }),
+  table: new Sprite(game.resources['table'], {
+    table: [0, 0, 32, 16],
+  }),
+  plant: new Sprite(game.resources['plant'], {
+    plant: [0, 0, 8, 12],
+  }),
+  window: new Sprite(game.resources['window'], {
+    window: [0, 0, 16, 32],
+  }),
+  chair: new Sprite(game.resources['chair'], {
+    chair: [0, 0, 13, 13],
+  }),
+  chair2: new Sprite(game.resources['chair2'], {
+    chair2: [0, 0, 10, 15],
+  }),
+  door: new Sprite(game.resources['door'], {
+    door: [0, 0, 16, 32]
+  }),
+  tv: new Sprite(game.resources['tv'], {
+    tv: [0, 0, 32, 16],
+  }),
+  shelf: new Sprite(game.resources['shelf'], {
+    shelf: [0, 0, 31, 16],
+  }),
+  stable: new Sprite(game.resources['stable'], {
+    stable: [0, 0, 16, 15]
+  }),
+  lamp: new Sprite(game.resources['lamp'], {
+    lamp: [0, 0, 12, 16]
   }),
   cat: new Sprite(game.resources['cat'], {
-    idle: { width: 16, height: 16, gap: 0, count: 4, interval: 250, finite: false, sx: 0, sy: 4 },
-    run: { width: 16, height: 16, gap: 0, count: 4, interval: 200, finite: false, sx: 0, sy: 36 },
-    attack: { width: 16, height: 16, gap: 0, count: 4, interval: 100, finite: true, sx: 0, sy: 84 },
-    death: { width: 16, height: 16, gap: 0, count: 4, interval: 250, finite: true, sx: 0, sy: 212 },
+    idle: [2, 8, 10, 10, 4, 6, 250, false],
+    run: [2, 40, 10, 10, 4, 6, 200, false],
+    attack: [2, 88, 12, 10, 4, 4, 100, true],
+    death: [0, 212, 16, 16, 4, 0, 250, true],
   }),
   ball: new Sprite(game.resources['ball'], {
-    run: { width: 32, height: 32, gap: 0, count: 4, interval: 200, finite: false, sx: 0, sy: 0 }
+    run: [0, 0, 32, 32, 4, 0, 200, false],
   }),
   rat: new Sprite(game.resources['rat'], {
-    run: { width: 32, height: 32, gap: 0, count: 8, interval: 200, finite: false, sx: 2, sy: 103 }
-  })
+    run: [2, 103, 32, 32, 8, 0, 200, false],
+  }),
+  granny: new Sprite(game.resources['granny'], {
+    idle: [0, 0, 28, 29, 1, 4, 250, false],
+    run: [0, 0, 28, 29, 4, 4, 200, false],
+  }),
 };
 
 game
