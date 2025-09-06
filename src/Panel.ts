@@ -19,12 +19,12 @@ export class Panel {
 
         ctx.font = '16px monospace';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(`Time left: ${seconds}s`, 430, 20);
+        ctx.fillText(`Time left: ${seconds}s`, 500, 10);
 
         this.ball.draw(ctx);
 
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(`: ${this.game.player?.balls ?? 0}`, 450, 49);
+        ctx.fillText(`: ${this.game.player?.balls ?? 0}`, 464, 37);
 
         this.game.sprites['ball']
     }
