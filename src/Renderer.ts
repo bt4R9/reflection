@@ -49,8 +49,4 @@ export class Renderer {
     start() {
         this.tick();
     }
-
-    stop() {
-        cancelAnimationFrame(this.frameId);
-    }
 }

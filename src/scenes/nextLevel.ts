@@ -1,13 +1,10 @@
-import { animate, B, drawSkip, H, HH, HW, W } from "../common";
+import { H, W, B, HH, HW, animate, drawSkip } from "../common";
 import type { Game } from "../Game";
 import { Scene } from "../Scene";
 
-export const getScene1 = (game: Game) => {
+export const getNextLevel = (game: Game, order: number, level: number) => {
     const fn = animate([
-        'They say black cat brings bad luck',
-        'But today the black cat is unlucky',
-        'There are rats in the house. Get rid of them before the owners come.',
-        'Don\'t let your reputation be ruined or you\'ll be thrown out of the house',
+        `level ${level}`,
     ], 24);
 
     let t = -1;
@@ -20,25 +17,18 @@ export const getScene1 = (game: Game) => {
 
         if (done && t === -1) {
             t = setTimeout(() => {
-                if (game.order < 2) {
+                if (game.order === order) {
                     game.nextScene();
                 }
-            }, 2000);
+            }, 1000);
         }
 
         ctx.fillStyle = '#fff';
         ctx.textBaseline = 'top';
         ctx.textAlign = 'center';
         ctx.font = '24px monospace';
-
-        let offsetY = 0;
-
-        for (const line of lines) {
-            ctx.fillText(line, HW, HH - B + offsetY);
-            offsetY += B;
-        }
-
-        ctx.fill();
+        
+        ctx.fillText(lines[0], HW, HH - B);
 
         drawSkip(ctx);
     }, false);

@@ -1,3 +1,5 @@
+import type { Random } from "./Random";
+
 export class Vec {
     x: number;
     y: number;
@@ -10,8 +12,8 @@ export class Vec {
     static radian(angle: number) {
         return new Vec(Math.sin(angle), Math.cos(angle)).norm();
     }
-    static random() {
-        return new Vec(Math.random() * 2 - 1, Math.random() * 2 - 1).norm();
+    static random(rnd: Random) {
+        return new Vec(rnd.next() * 2 - 1, rnd.next() * 2 - 1).norm();
     }
     add(vec: Vec) {
         return new Vec(this.x + vec.x, this.y + vec.y);

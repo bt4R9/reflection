@@ -14,6 +14,7 @@ export class Scene {
     rats: Rat[] = [];
     gameTime: number = 0;
     timeLeft: number = 0;
+    t = -1;
 
     game?: Game;
 
@@ -46,16 +47,26 @@ export class Scene {
     }
 
     update(delta: number) {
-        if (!this.interactive) {
+        const game = this.game;
+
+        if (!this.interactive || !game) {
             return;
         }
 
-        this.timeLeft = (this.game?.scene.gameTime ?? 0) - (Date.now() - (this.game?.startTime ?? 0));
+        this.timeLeft = (this.gameTime ?? 0) - (Date.now() - game.startTime);
 
         if (this.timeLeft <= 0) {
             this.game?.setScene('gameover');
-            this.game?.sound.stopMusic();
             return;
+        }
+
+        if (this.rats.length === 0) {
+            if (this.t === -1) {
+                game.spentTime += (Date.now() - game.startTime);
+                this.t = setTimeout(() => {
+                    game.nextScene();
+                }, 1000);
+            }
         }
 
         this.game?.player?.update(delta);
@@ -69,7 +80,7 @@ export class Scene {
         }
 
         for (const projectile of this.projectiles) {
-            projectile.update(delta);
+            projectile.update();
         }
 
         for (let i = 0; i < this.rats.length; i++) {
@@ -94,10 +105,6 @@ export class Scene {
 
         for (const object2D of this.objects2D) {
             object2D.draw(context);
-
-            if (this._debug) {
-                object2D.entity?.draw(context);
-            }
         }
 
         for (const projectile of this.projectiles) {
@@ -109,11 +116,5 @@ export class Scene {
         }
 
         this.game?.player?.draw(context);
-
-        if (this._debug) {
-            for (const entity of this.entities) {
-                entity.draw(context);
-            }
-        }
     }
 }

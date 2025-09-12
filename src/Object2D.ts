@@ -34,13 +34,13 @@ export class O2D {
         this.vi = params.vi ?? false;
         this.finite = this.sprite.frame.f;
 
+        this.sprite.play(this.frame);
+
         if (this.hb) {
             const hw = (this.width / 2) | 0;
             const hh = (this.height / 2) | 0;
             this.entity = Entity.polygon(this.position, [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]], 'red');
         }
-
-        this.sprite.play(this.frame);
     }
 
     get width() {
@@ -58,6 +58,7 @@ export class O2D {
     }
 
     draw(context: CanvasRenderingContext2D) {
+        this.sprite.play(this.frame);
         this.sprite.hi = this.hi;
         this.sprite.vi = this.vi;
         this.sprite.draw(context, this.position.x, this.position.y, this.width, this.height);

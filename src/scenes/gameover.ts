@@ -6,9 +6,8 @@ import { Vec } from "../Vector";
 
 export const getGameOverScene = (game: Game) => {
     const fn = animate([
-        'You failed to fulfill your duties.',
-        'The game is over.'
-    ], 25);
+        'You failed to fulfill your duties'
+    ], 24);
 
     const scene = new Scene((ctx) => {
         ctx.fillStyle = '#000000';
@@ -81,8 +80,8 @@ export const getGameOverScene = (game: Game) => {
     let p2 = false;
     let p3 = false;
 
-    const granny = new O2D([W - 250, HH], 2, game.sprites['granny'], 'run');
-    const cat = new O2D([HW - 50, HH + 15], 4, game.sprites['cat'], 'idle');
+    const granny = new O2D([W - 250, HH], 3, game.sprites['granny'], 'run');
+    const cat = new O2D([HW - 50, HH], 4, game.sprites['cat'], 'idle');
 
     scene.objects2D = [granny, cat];
 

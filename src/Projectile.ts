@@ -1,4 +1,3 @@
-import { Sprite } from "./Sprite";
 import { Vec } from "./Vector";
 import type { Game } from "./Game";
 
@@ -20,7 +19,6 @@ export class Projectile {
     d: Vec;
     game: Game;
     speed: number;
-    sprite: Sprite;
     angle = 0;
     c = 0;
 
@@ -29,21 +27,14 @@ export class Projectile {
         this.d = direction;
         this.game = game;
         this.speed = speed;
-
-        this.sprite = this.game.sprites['ball'];
-
-        this.sprite.play('run');
-        this.sprite.rotate(direction);
     }
 
-    update(delta: number) {
+    update() {
         const scene = this.game.scene;
 
         if (!scene) {
             return;
         }
-
-        this.sprite.update(delta);
 
         if (this.speed < 1.5) {
             this.speed *= 0.992;

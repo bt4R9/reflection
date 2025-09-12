@@ -93,7 +93,7 @@ export class Player {
             d = d.add(new Vec(1, 0));
         }
 
-        this.c.d = d.norm();
+        this.c.dir = d.norm();
     }
 
     private updateCharacter(delta: number) {
@@ -108,19 +108,19 @@ export class Player {
         if (this.isAttacking) {
             if (this.sprite.frame.finished) {
                 this.isAttacking = false;
-                nextFrame = this.c.d.empty() ? 'idle' : 'run';
+                nextFrame = this.c.dir.empty() ? 'idle' : 'run';
             } else {
                 nextFrame = 'attack';
             }
         } else {
-            nextFrame = this.c.d.empty() ? 'idle' : 'run';
+            nextFrame = this.c.dir.empty() ? 'idle' : 'run';
         }
 
         this.sprite.play(nextFrame);
 
-        if (this.c.d.x < 0) {
+        if (this.c.dir.x < 0) {
             this.sprite.hi = true;
-        } else if (this.c.d.x > 0) {
+        } else if (this.c.dir.x > 0) {
             this.sprite.hi = false;
         }
 

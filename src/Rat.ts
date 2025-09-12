@@ -1,69 +1,70 @@
 import { Character } from "./Character";
 import { Sprite } from "./Sprite";
 import { Vec } from "./Vector";
+import {Random} from "./Random";
 import type { Game } from "./Game";
 
 export class Rat {
     game: Game;
     c: Character;
-    counter: number = 0;
-    current: number = 0;
+    c1: number = 0;
+    c2: number = 0;
     sprite: Sprite;
-    cooldown: number = 0;
-    cooldownCounter: number = 0;
+    random = Random.get();
+
     state: 'run' | 'caught' = 'run';
 
-    constructor(p: [number, number], game: Game) {
+    constructor(p: [number, number], game: Game, speed: number = 2.8) {
         this.game = game;
-        this.c = new Character(new Vec(p[0], p[1]), 10, 10, 2.8, 100, game);
+        this.c = new Character(new Vec(p[0], p[1]), 10, 10, speed, 100, game);
 
-        this.sprite = new Sprite(game.resources['rat'], {
-            run: [8, 86, 16, 10, 10, 16, 200, false],
-            death: [8, 150, 16, 10, 10, 16, 100, true]
+        this.sprite = new Sprite(game.resources['sprite'], {
+            run: [8, 34, 16, 10, 10, 16, 200, false],
+            death: [8, 50, 16, 10, 10, 16, 100, true]
         });
 
-        this.c.d = Vec.random();
+        this.c.dir = Vec.random(this.random);
         this.state = 'run';
         this.sprite.play('run');
-
-        this.setCounter();
-    }
-
-    setCounter() {
-        this.current = 0;
-        this.counter = 150 + Math.floor(Math.random() * 400);
     }
 
     update(delta: number) {
         const scene = this.game.scene;
+        const player = this.game.player;
 
-        if (!scene) {
+        if (!scene || !player) {
             return;
         }
 
         const prevPosition = this.c.p.clone();
 
-        this.current += 1;
+        this.c1 += 1;
 
-        if (this.current === this.counter) {
-            this.c.d = Vec.random();
-            this.setCounter();
+        if (this.c1 === 150) {
+            if (this.c.p.dist(player.c.p) < 100) {
+                this.c.dir = player.c.p.sub(this.c.p).norm().negate();          
+            } else if (this.random.next() < 0.5) {
+                this.c.dir = Vec.random(this.random);
+            }
+
+            this.c1 = 0;
         }
 
         if (this.state === 'caught') {
-            this.cooldownCounter += 1;
+            this.c2 += 1;
         }
 
-        if (this.cooldownCounter === this.cooldown) {
+        if (this.c2 === 250) {
             this.state = 'run';
             this.sprite.play('run');
+            this.c2 = 0;
         }
 
         if (this.state === 'run') {
             this.c.update();
 
             while (this.c.p.equal(prevPosition)) {
-                this.c.d = Vec.random();
+                this.c.dir = Vec.random(this.random);
                 this.c.update();
             }
 
@@ -74,17 +75,15 @@ export class Rat {
                     this.state = 'caught';
                     this.sprite.play('death');
                     this.game.sound.playEffect('stun');
-                    this.cooldown = 250;
-                    this.cooldownCounter = 0;
                     this.c.hp -= 10;
                     break;
                 }
             }
         }
 
-        if (this.c.d.x < 0) {
+        if (this.c.dir.x < 0) {
             this.sprite.hi = false;
-        } else if (this.c.d.x > 0) {
+        } else if (this.c.dir.x > 0) {
             this.sprite.hi = true;
         }
 

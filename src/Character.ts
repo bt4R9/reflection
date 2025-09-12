@@ -7,7 +7,7 @@ export class Character {
     h: number;
     s: number;
     hp: number;
-    d: Vec;
+    dir: Vec;
     game: Game;
 
     constructor(p: Vec, w: number, h: number, s: number, hp: number, game: Game) {
@@ -17,7 +17,7 @@ export class Character {
         this.s = s
         this.hp = hp
         this.game = game
-        this.d = new Vec(0, 0);
+        this.dir = new Vec(0, 0);
     }
 
     wouldCollide(next: Vec) {
@@ -41,7 +41,7 @@ export class Character {
             return;
         };
 
-        const move = this.d.scale(this.s);
+        const move = this.dir.scale(this.s);
 
         const nextX = this.p.add(new Vec(move.x, 0));
         const nextY = this.p.add(new Vec(0, move.y));

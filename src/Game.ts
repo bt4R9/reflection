@@ -4,18 +4,20 @@ import { Panel } from "./Panel";
 import { Player } from "./Player";
 import { Renderer } from "./Renderer";
 import type { Resource } from "./Resource";
-import type { Scene } from "./Scene";
-import { getScene0 } from "./scenes/0";
-import { getScene1 } from "./scenes/1";
-import { getScene2 } from "./scenes/2"
-import { getScene3 } from "./scenes/3";
+import { Scene } from "./Scene";
+import { getScene0 } from "./scenes/intro";
 import { getGameOverScene } from "./scenes/gameover";
+import { getLevel0} from "./scenes/level0";
+import { getLevel1 } from "./scenes/level1";
+import { getLevel2 } from "./scenes/level2";
+import { getNextLevel } from "./scenes/nextLevel";
 import { Sound } from "./Sound";
 import type { Sprite } from "./Sprite";
 import { Vec } from "./Vector";
+import { getGameWinScene } from "./scenes/win";
 
 export class Game {
-    scenes: Record<string, Scene> = {};
+    scenes: Record<string, () => Scene> = {};
     resources: Record<string, Resource> = {};
     sprites: Record<string, Sprite> = {};
     emitter = new Events();
@@ -25,26 +27,30 @@ export class Game {
     sound = new Sound();
     panel?: Panel;
     startTime = 0;
-    s = 'intro0';
+    spentTime = 0;
+    scene: Scene;
+    s = 'intro';
 
     sceneOrder: string[] = [
-        'intro0',
-        'intro1',
-        'intro2',
+        'intro',
+        'nextlevel0',
         'level0',
+        'nextlevel1',
+        'level1',
+        'nextlevel2',
+        'level2',
+        'win',
     ];
 
     constructor(canvas: HTMLCanvasElement) {
         this.renderer = new Renderer(canvas);
         this.control = new Control(canvas, this.emitter);
+
+        this.scene = new Scene(() => {}, false);
     }
 
     load() {
         return Promise.all(Object.values(this.resources).map(r => r.load()));
-    }
-
-    get scene() {
-        return this.scenes[this.s];
     }
 
     get order() {
@@ -64,7 +70,6 @@ export class Game {
 
         this.setScene(this.sceneOrder[nextIndex]);
     }
-    
 
     init() {
         this.player = new Player(new Vec(384, 288), this);
@@ -73,13 +78,18 @@ export class Game {
         this.panel = new Panel(this);
 
         this.scenes = {
-            'intro0': getScene0(this),
-            'intro1': getScene1(this),
-            'intro2': getScene2(this),
+            'intro': () => getScene0(this),
 
-            'level0': getScene3(this),
+            'level0': () => getLevel0(this),
+            'level1': () => getLevel1(this),
+            'level2': () => getLevel2(this),
 
-            'gameover': getGameOverScene(this)
+            'nextlevel0': () => getNextLevel(this, 1, 1),
+            'nextlevel1': () => getNextLevel(this, 3, 2),
+            'nextlevel2': () => getNextLevel(this, 5, 3),
+
+            'gameover': () => getGameOverScene(this),
+            'win': () => getGameWinScene(this),
         };
 
         this.setScene(this.s);
@@ -101,15 +111,12 @@ export class Game {
 
     setScene(scene: string) {
         this.s = scene;
+        this.scene = this.scenes[this.s]() ;
         this.scene.game = this;
         this.renderer.scene = this.scene;
 
         if (this.scene.interactive) {
             this.startTime = Date.now();
-        }
-
-        if (this.s.startsWith('level')) {
-            this.sound.playMusic('main');
         }
     }
 }
